@@ -1,12 +1,13 @@
 package gate
 
 import (
-	"github.com/name5566/leaf/chanrpc"
-	"github.com/name5566/leaf/log"
-	"github.com/name5566/leaf/network"
 	"net"
 	"reflect"
 	"time"
+
+	"github.com/adamluo159/leaf/chanrpc"
+	"github.com/adamluo159/leaf/log"
+	"github.com/adamluo159/leaf/network"
 )
 
 type Gate struct {
@@ -80,6 +81,7 @@ func (gate *Gate) Run(closeSig chan bool) {
 		tcpServer.Close()
 	}
 }
+func (gate *Gate) OnInit() {}
 
 func (gate *Gate) OnDestroy() {}
 

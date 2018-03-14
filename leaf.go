@@ -1,13 +1,14 @@
 package leaf
 
 import (
-	"github.com/name5566/leaf/cluster"
-	"github.com/name5566/leaf/conf"
-	"github.com/name5566/leaf/console"
-	"github.com/name5566/leaf/log"
-	"github.com/name5566/leaf/module"
 	"os"
 	"os/signal"
+
+	"github.com/adamluo159/leaf/cluster"
+	"github.com/adamluo159/leaf/conf"
+	"github.com/adamluo159/leaf/console"
+	"github.com/adamluo159/leaf/log"
+	"github.com/adamluo159/leaf/module"
 )
 
 func Run(mods ...module.Module) {
@@ -18,6 +19,7 @@ func Run(mods ...module.Module) {
 			panic(err)
 		}
 		log.Export(logger)
+
 		defer logger.Close()
 	}
 
