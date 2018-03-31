@@ -2,10 +2,11 @@ package network
 
 import (
 	"errors"
-	"github.com/gorilla/websocket"
-	"github.com/adamluo159/leaf/log"
 	"net"
 	"sync"
+
+	"github.com/adamluo159/leaf/log"
+	"github.com/gorilla/websocket"
 )
 
 type WebsocketConnSet map[*websocket.Conn]struct{}
@@ -16,6 +17,10 @@ type WSConn struct {
 	writeChan chan []byte
 	maxMsgLen uint32
 	closeFlag bool
+}
+
+func NewWSConn(conn *websocket.Conn, pendingWriteNum int, maxMsgLen uint32) *WSConn {
+	return newWSConn(conn, pendingWriteNum, maxMsgLen)
 }
 
 func newWSConn(conn *websocket.Conn, pendingWriteNum int, maxMsgLen uint32) *WSConn {

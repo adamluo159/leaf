@@ -81,6 +81,7 @@ func (gate *Gate) Run(closeSig chan bool) {
 		tcpServer.Close()
 	}
 }
+
 func (gate *Gate) OnInit() {}
 
 func (gate *Gate) OnDestroy() {}

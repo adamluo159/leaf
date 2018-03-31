@@ -14,7 +14,7 @@ import (
 func Run(mods ...module.Module) {
 	// logger
 	if conf.LogLevel != "" {
-		logger, err := log.New(conf.LogLevel, conf.LogPath, conf.LogFlag)
+		logger, err := log.New(conf.LogLevel, conf.LogPath, conf.LogFlag, true)
 		if err != nil {
 			panic(err)
 		}
