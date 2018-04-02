@@ -29,8 +29,8 @@ type MsgInfo struct {
 type MsgHandler func([]interface{})
 
 type MsgRaw struct {
-	id  uint16
-	msg interface{}
+	Id  uint16
+	Msg interface{}
 }
 
 func NewProcessor() *Processor {
@@ -45,10 +45,6 @@ func (p *Processor) SetByteOrder(littleEndian bool) {
 	p.littleEndian = littleEndian
 }
 
-func (p *Processor) PackMsg(id uint16, msg interface{}) interface{} {
-	return MsgRaw{id: id, msg: msg}
-}
-
 // It's dangerous to call the method on routing or marshaling (unmarshaling)
 func (p *Processor) RegisterWithRouter(id uint16, msg proto.Message, msgRouter *chanrpc.Server) {
 	if id >= math.MaxUint16 {
@@ -59,6 +55,8 @@ func (p *Processor) RegisterWithRouter(id uint16, msg proto.Message, msgRouter *
 	}
 
 	i := new(MsgInfo)
+	i.msgRouter = msgRouter
+
 	p.msgInfo[id] = i
 	if msg != nil {
 		msgType := reflect.TypeOf(msg)
@@ -90,14 +88,20 @@ func (p *Processor) RegisterWithHandle(id uint16, msg proto.Message, msgHandler 
 func (p *Processor) Route(msg interface{}, userData interface{}) error {
 	// protobuf
 	if raw, ok := msg.(MsgRaw); ok {
-		i := p.msgInfo[raw.id]
+		i := p.msgInfo[raw.Id]
+		recv := false
 		if i.msgHandler != nil {
-			i.msgHandler([]interface{}{raw.msg, userData})
+			i.msgHandler([]interface{}{raw.Msg, userData})
+			recv = true
 		}
 		if i.msgRouter != nil {
-			i.msgRouter.Go(raw.id, raw.msg, userData)
+			i.msgRouter.Go(raw.Id, raw.Id, raw.Msg, userData)
+			recv = true
 		}
 
+		if recv == false {
+			return fmt.Errorf("cannt find msgid:%d, %v", raw.Id, raw.Msg)
+		}
 	} else {
 		return fmt.Errorf("msgRaw err:%v", msg)
 	}
@@ -133,20 +137,24 @@ func (p *Processor) Unmarshal(data []byte) (interface{}, error) {
 
 // goroutine safe
 func (p *Processor) Marshal(msg interface{}) ([][]byte, error) {
-	if raw, ok := msg.(MsgRaw); !ok {
+	if raw, ok := msg.(MsgRaw); ok {
 		id := make([]byte, 2)
 		if p.littleEndian {
-			binary.LittleEndian.PutUint16(id, raw.id)
+			binary.LittleEndian.PutUint16(id, raw.Id)
 		} else {
-			binary.BigEndian.PutUint16(id, raw.id)
+			binary.BigEndian.PutUint16(id, raw.Id)
 		}
 
 		// data
-		data, err := proto.Marshal(raw.msg.(proto.Message))
+		if raw.Msg == nil {
+			return [][]byte{id, nil}, nil
+		}
+
+		data, err := proto.Marshal(raw.Msg.(proto.Message))
 		return [][]byte{id, data}, err
 	}
 
-	return nil, fmt.Errorf("message %s not registered", msg)
+	return nil, fmt.Errorf("message %v not registered\n", msg)
 
 }
 
