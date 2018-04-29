@@ -85,7 +85,7 @@ func (p *Processor) RegisterWithHandle(id uint16, msg proto.Message, msgHandler 
 
 // goroutine safe
 func (p *Processor) Route(msg interface{}, userData interface{}) error {
-	raw := msg.(MsgRaw)
+	raw := msg.(*MsgRaw)
 	// protobuf
 	i := p.msgInfo[raw.Id]
 	if p.msgRouter != nil {
@@ -118,10 +118,13 @@ func (p *Processor) Unmarshal(data []byte) (interface{}, error) {
 	// msg
 	if i, ok := p.msgInfo[id]; ok {
 		if i.msgType == nil {
-			return MsgRaw{id, req, nil}, nil
+			return &MsgRaw{id, req, nil}, nil
 		} else {
+			if len(data) == 4 {
+				return &MsgRaw{id, req, nil}, errors.New(fmt.Sprintf("msg should have body, id:%v, req:%v, %v", id, req, i.msgType))
+			}
 			msg := reflect.New(i.msgType.Elem()).Interface()
-			return MsgRaw{id, req, msg}, proto.UnmarshalMerge(data[4:], msg.(proto.Message))
+			return &MsgRaw{id, req, msg}, proto.UnmarshalMerge(data[4:], msg.(proto.Message))
 		}
 	}
 	return nil, fmt.Errorf("message id %v not registered", id)
@@ -129,7 +132,7 @@ func (p *Processor) Unmarshal(data []byte) (interface{}, error) {
 
 // goroutine safe
 func (p *Processor) Marshal(msg interface{}) ([][]byte, error) {
-	raw := msg.(MsgRaw)
+	raw := msg.(*MsgRaw)
 	pre := make([]byte, 4)
 	if p.littleEndian {
 		binary.LittleEndian.PutUint16(pre, raw.Id)

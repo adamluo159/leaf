@@ -6,6 +6,8 @@ import (
 	"log"
 	"os"
 	"path"
+	"path/filepath"
+	"runtime"
 	"strings"
 	"time"
 )
@@ -105,7 +107,15 @@ func (logger *Logger) doPrintf(level int, printLevel string, format string, a ..
 		panic("logger closed")
 	}
 
-	format = printLevel + format
+	_, file, line, ok := runtime.Caller(2)
+	if !ok {
+		file = "???"
+		line = 1
+
+	}
+	//format = printLevel + format
+	format = fmt.Sprintf("%s%10s:%-4d %s", printLevel, filepath.Base(file), line, format)
+
 	logStr := fmt.Sprintf(format, a...)
 	logger.baseLogger.Output(3, logStr)
 
