@@ -28,7 +28,7 @@ type MsgInfo struct {
 
 type MsgRaw struct {
 	Id  uint16
-	req uint16
+	Req uint16
 	Msg interface{}
 }
 
@@ -136,10 +136,10 @@ func (p *Processor) Marshal(msg interface{}) ([][]byte, error) {
 	pre := make([]byte, 4)
 	if p.littleEndian {
 		binary.LittleEndian.PutUint16(pre, raw.Id)
-		binary.LittleEndian.PutUint16(pre[2:], raw.req)
+		binary.LittleEndian.PutUint16(pre[2:], raw.Req)
 	} else {
 		binary.BigEndian.PutUint16(pre, raw.Id)
-		binary.BigEndian.PutUint16(pre[2:], raw.req)
+		binary.BigEndian.PutUint16(pre[2:], raw.Req)
 	}
 
 	// data
