@@ -114,7 +114,7 @@ func (logger *Logger) doPrintf(level int, printLevel string, format string, a ..
 
 	}
 	//format = printLevel + format
-	format = fmt.Sprintf("%s%10s:%-4d %s", printLevel, filepath.Base(file), line, format)
+	format = fmt.Sprintf("%s%15s:%-4d %s", printLevel, filepath.Base(file), line, format)
 
 	logStr := fmt.Sprintf(format, a...)
 	logger.baseLogger.Output(3, logStr)
