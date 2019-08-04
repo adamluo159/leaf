@@ -86,14 +86,18 @@ func (p *Processor) RegisterWithHandle(id uint16, msg proto.Message, msgHandler 
 // goroutine safe
 func (p *Processor) Route(msg interface{}, userData interface{}) error {
 	raw := msg.(*MsgRaw)
+
 	// protobuf
 	i := p.msgInfo[raw.Id]
-	if p.msgRouter != nil {
-		p.msgRouter.Go(raw.Id, raw, userData)
-	} else if i.msgHandler != nil {
-		i.msgHandler([]interface{}{raw, userData})
-	} else {
+	if i == nil {
 		return fmt.Errorf("cannt find msgid:%d, %v", raw.Id, raw.Msg)
+	}
+	if i.msgHandler != nil {
+		i.msgHandler([]interface{}{raw, userData})
+	} else if p.msgRouter != nil {
+		p.msgRouter.Go(raw.Id, raw, userData)
+	} else {
+		return fmt.Errorf("cannt find  handler msgid:%d, %v", raw.Id, raw.Msg)
 	}
 
 	return nil

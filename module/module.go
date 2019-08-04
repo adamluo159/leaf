@@ -1,16 +1,18 @@
 package module
 
 import (
-	"github.com/adamluo159/leaf/conf"
-	"github.com/adamluo159/leaf/log"
 	"runtime"
 	"sync"
+
+	"github.com/adamluo159/leaf/conf"
+	"github.com/adamluo159/leaf/log"
 )
 
 type Module interface {
 	OnInit()
 	OnDestroy()
 	Run(closeSig chan bool)
+	Name() string
 }
 
 type module struct {
