@@ -5,6 +5,7 @@ import (
 	"reflect"
 	"time"
 
+	"github.com/adamluo159/leaf/chanrpc"
 	"github.com/adamluo159/leaf/log"
 	"github.com/adamluo159/leaf/network"
 )
@@ -14,8 +15,7 @@ type Gate struct {
 	PendingWriteNum int
 	MaxMsgLen       uint32
 	Processor       network.Processor
-	AgentCall       IAgent
-	//AgentChanRPC    *chanrpc.Server
+	AgentChanRPC    *chanrpc.Server
 
 	// websocket
 	WSAddr      string
@@ -42,11 +42,8 @@ func (gate *Gate) Run(closeSig chan bool) {
 		wsServer.KeyFile = gate.KeyFile
 		wsServer.NewAgent = func(conn *network.WSConn) network.Agent {
 			a := &agent{conn: conn, gate: gate}
-			// if gate.AgentChanRPC != nil {
-			// 	gate.AgentChanRPC.Go("NewAgent", a)
-			// }
-			if gate.AgentCall != nil {
-				gate.AgentCall.NewAgent(a)
+			if gate.AgentChanRPC != nil {
+				gate.AgentChanRPC.Go("NewAgent", a)
 			}
 			return a
 		}
@@ -63,11 +60,8 @@ func (gate *Gate) Run(closeSig chan bool) {
 		tcpServer.LittleEndian = gate.LittleEndian
 		tcpServer.NewAgent = func(conn *network.TCPConn) network.Agent {
 			a := &agent{conn: conn, gate: gate}
-			// if gate.AgentChanRPC != nil {
-			// 	gate.AgentChanRPC.Go("NewAgent", a)
-			// }
-			if gate.AgentCall != nil {
-				gate.AgentCall.NewAgent(a)
+			if gate.AgentChanRPC != nil {
+				gate.AgentChanRPC.Go("NewAgent", a)
 			}
 			return a
 		}
@@ -93,11 +87,6 @@ func (gate *Gate) OnInit() {}
 func (gate *Gate) OnDestroy() {}
 
 func (gate *Gate) Name() string { return "gate" }
-
-type IAgent interface {
-	NewAgent(a Agent)
-	CloseAgent(a Agent) error
-}
 
 type agent struct {
 	conn     network.Conn
@@ -129,16 +118,10 @@ func (a *agent) Run() {
 }
 
 func (a *agent) OnClose() {
-	// if a.gate.AgentChanRPC != nil {
-	// 	err := a.gate.AgentChanRPC.Call0("CloseAgent", a)
-	// 	if err != nil {
-	// 		log.Error("chanrpc error: %v", err)
-	// 	}
-	// }
-	if a.gate.AgentCall != nil {
-		err := a.gate.AgentCall.CloseAgent(a)
+	if a.gate.AgentChanRPC != nil {
+		err := a.gate.AgentChanRPC.Call0("CloseAgent", a)
 		if err != nil {
-			log.Error("AgentCall on close error: %v", err)
+			log.Error("chanrpc error: %v", err)
 		}
 	}
 }
