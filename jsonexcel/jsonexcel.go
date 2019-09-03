@@ -102,6 +102,9 @@ func readJsonFile(filepath string, json_struct *jsonStruct) error {
 			return err
 		}
 		kvalue := mapvalue.Elem().FieldByName(json_struct.keyfield)
+		if kvalue.Kind() == reflect.Int && kvalue.Int() == 0 {
+			panic(fmt.Sprintf("表格:%s 主键:%s 值不能为0 ", filepath, json_struct.keyfield))
+		}
 		json_struct.vmap.SetMapIndex(kvalue, mapvalue)
 	}
 
