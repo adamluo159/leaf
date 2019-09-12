@@ -5,7 +5,7 @@ import (
 
 	"github.com/adamluo159/leaf/chanrpc"
 	"github.com/adamluo159/leaf/console"
-	"github.com/adamluo159/leaf/go"
+	g "github.com/adamluo159/leaf/go"
 	"github.com/adamluo159/leaf/timer"
 )
 
