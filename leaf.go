@@ -7,7 +7,6 @@ import (
 	"github.com/adamluo159/leaf/cluster"
 	"github.com/adamluo159/leaf/conf"
 	"github.com/adamluo159/leaf/console"
-	"github.com/adamluo159/leaf/jsonexcel"
 	"github.com/adamluo159/leaf/log"
 	"github.com/adamluo159/leaf/module"
 )
@@ -23,8 +22,6 @@ func Run(mods ...module.Module) {
 
 		defer logger.Close()
 	}
-
-	jsonexcel.Init()
 
 	log.Release("Leaf %v starting up", version)
 
