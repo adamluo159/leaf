@@ -1,8 +1,9 @@
 package log_test
 
 import (
-	"github.com/name5566/leaf/log"
 	l "log"
+
+	"github.com/adamluo159/leaf/log"
 )
 
 func Example() {
@@ -13,7 +14,7 @@ func Example() {
 	log.Error("My name is %v", name)
 	// log.Fatal("My name is %v", name)
 
-	logger, err := log.New("release", "", l.LstdFlags)
+	logger, err := log.New("release", "", l.LstdFlags, false)
 	if err != nil {
 		return
 	}
